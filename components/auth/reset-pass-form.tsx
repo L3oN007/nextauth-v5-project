@@ -2,61 +2,53 @@
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
-import { LoginSchema } from '@/schemas';
+import { ResetSchema } from '@/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useSearchParams } from 'next/navigation';
 import * as z from 'zod';
 
-import { login } from '@/actions/login';
 import { useState, useTransition } from 'react';
 import { FormError } from '../form-error';
+import { FormSuccess } from '../form-success';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { CardWrapper } from './card-wrapper';
-import { FormSuccess } from '../form-success';
-import Link from 'next/link';
+import { resetPass } from '@/actions/reset-password';
 
-export const LoginForm = () => {
-	const searchParams = useSearchParams();
-	const urlError =
-		searchParams.get('error') === 'OAuthAccountNotLinked'
-			? 'Email already in use with different account!'
-			: '';
+export const ResetPassForm = () => {
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string | undefined>('');
-	const form = useForm<z.infer<typeof LoginSchema>>({
-		resolver: zodResolver(LoginSchema),
+	const form = useForm<z.infer<typeof ResetSchema>>({
+		resolver: zodResolver(ResetSchema),
 		defaultValues: {
 			email: '',
-			password: '',
 		},
 	});
 
-	const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+	const onSubmit = (values: z.infer<typeof ResetSchema>) => {
 		setError('');
 		setSuccess('');
 
 		startTransition(() => {
-			login(values).then((data) => {
-				setError(data?.error);
-				setSuccess(data?.success);
+			resetPass(values).then((data) => {
+				setError(data.error);
+				setSuccess(data.success);
 			});
 		});
 	};
 
 	return (
 		<CardWrapper
-			headerLabel='Welcome back'
-			backButtonLabel='Don&#39;t have an account?'
-			backButtonHref='/auth/register'
-			showSocial>
+			headerLabel='Forgot your password?'
+			backButtonLabel='Back to login'
+			backButtonHref='/auth/login'>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
@@ -72,45 +64,21 @@ export const LoginForm = () => {
 										<Input
 											{...field}
 											type='text'
-											placeholder='abc@gmail.com'
+											placeholder='Enter your email address'
 											disabled={isPending}
 										/>
 									</FormControl>
 									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='password'
-							render={({ field }) => (
-								<FormItem>
-									<div className='flex justify-between items-center '>
-										<FormLabel>Password</FormLabel>
-										<Button
-											variant='link'
-											size='sm'
-											className='px-0 font-normal hover:no-underline hover:text-primary/80 text-[12px]'
-											asChild>
-											<Link href='/auth/reset-password'>
-												Forgot password?
-											</Link>
-										</Button>
-									</div>
-									<FormControl>
-										<Input
-											{...field}
-											type='password'
-											placeholder='******'
-											disabled={isPending}
-										/>
-									</FormControl>
-									<FormMessage />
+									<FormDescription>
+										Enter your user account&apos;s verified email
+										address and we will send you a password reset
+										link.
+									</FormDescription>
 								</FormItem>
 							)}
 						/>
 					</div>
-					<FormError message={error || urlError} />
+					<FormError message={error} />
 					<FormSuccess message={success} />
 					<Button
 						type='submit'
@@ -131,10 +99,10 @@ export const LoginForm = () => {
 									strokeLinejoin='round'>
 									<path d='M21 12a9 9 0 1 1-6.219-8.56' />
 								</svg>
-								Login
+								Send reset email
 							</>
 						) : (
-							'Login'
+							'Send reset email'
 						)}
 					</Button>
 				</form>
