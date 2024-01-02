@@ -10,21 +10,26 @@ import {
 import { LoginSchema } from '@/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useSearchParams } from 'next/navigation';
 import * as z from 'zod';
 
+import { login } from '@/actions/login';
+import { useState, useTransition } from 'react';
+import { FormError } from '../form-error';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { CardWrapper } from './card-wrapper';
-import { FormError } from '../form-error';
 import { FormSuccess } from '../form-success';
-import { useState, useTransition } from 'react';
-import { login } from '@/actions/login';
 
 export const LoginForm = () => {
+	const searchParams = useSearchParams();
+	const urlError =
+		searchParams.get('error') === 'OAuthAccountNotLinked'
+			? 'Email already in use with different account!'
+			: '';
 	const [isPending, startTransition] = useTransition();
-	const [success, setSuccess] = useState<string | undefined>('');
 	const [error, setError] = useState<string | undefined>('');
-
+	const [success, setSuccess] = useState<string | undefined>('');
 	const form = useForm<z.infer<typeof LoginSchema>>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
@@ -39,8 +44,8 @@ export const LoginForm = () => {
 
 		startTransition(() => {
 			login(values).then((data) => {
-				setSuccess(data.success);
-				setError(data.error);
+				setError(data?.error);
+				setSuccess(data?.success);
 			});
 		});
 	};
@@ -93,13 +98,32 @@ export const LoginForm = () => {
 							)}
 						/>
 					</div>
+					<FormError message={error || urlError} />
 					<FormSuccess message={success} />
-					<FormError message={error} />
 					<Button
 						type='submit'
 						className='w-full'
 						disabled={isPending}>
-						Login
+						{isPending ? (
+							<>
+								<svg
+									className='inline-block mr-2 animate-spin'
+									xmlns='http://www.w3.org/2000/svg'
+									width='18'
+									height='18'
+									viewBox='0 0 24 24'
+									fill='none'
+									stroke='currentColor'
+									strokeWidth='2'
+									strokeLinecap='round'
+									strokeLinejoin='round'>
+									<path d='M21 12a9 9 0 1 1-6.219-8.56' />
+								</svg>
+								Login
+							</>
+						) : (
+							'Login'
+						)}
 					</Button>
 				</form>
 			</Form>

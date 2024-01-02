@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+	</head>
+	<style>
+		* {
+			padding: 0;
+			margin: 0;
+			box-sizing: border-box;
+			font-family: system-ui, -apple-system, BlinkMacSystemFont,
+				'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+				'Helvetica Neue', sans-serif;
+		}
+
+		.wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			background: rgba(239, 68, 68, 1);
+			background: linear-gradient(
+				222deg,
+				rgba(236, 72, 153, 1) 0%,
+				rgba(239, 68, 68, 1) 35%,
+				rgba(245, 158, 11, 1) 100%
+			);
+		}
+
+		.card {
+			overflow: hidden;
+			border-radius: 1rem;
+			border-width: 1px;
+			border-color: #e5e7eb;
+			max-width: 28rem;
+			background-color: #ffffff;
+			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+			margin: 0 auto;
+		}
+
+		.heading {
+			font-size: 1.5rem;
+			line-height: 2rem;
+			font-weight: 700;
+		}
+
+		.text {
+			margin-top: 0.5rem;
+			color: #4b5563;
+		}
+
+		.verify-link {
+			padding-top: 0.5rem;
+			padding-bottom: 0.5rem;
+			padding-left: 0.75rem;
+			padding-right: 0.75rem;
+			border-radius: 0.25rem;
+			font-weight: 600;
+			/* text-align: center; */
+			color: #ffffff;
+			text-decoration: none;
+			background-color: rgb(22 163 74);
+			cursor: pointer;
+		}
+
+		.note {
+			font-size: 0.75rem;
+			line-height: 1rem;
+			color: #6b7280;
+		}
+	</style>
+	<body>
+		<main class="wrapper">
+			<div class="card">
+				<div style="padding: 2rem">
+					<div style="margin-top: 1rem">
+						<p class="heading">Email Verification</p>
+						<p class="text">
+							Please click the link in the email we sent to your
+							address to verify your account.
+						</p>
+					</div>
+					<div style="margin-top: 1.5rem">
+						<a href="${}" class="verify-link"> Verify Email </a>
+					</div>
+					<div style="margin-top: 1.25rem">
+						<p class="note">
+							This link will expire in
+							<span style="font-weight: 700">1 hour</span> . If you
+							did not make this request, please disregard this email.
+						</p>
+					</div>
+				</div>
+			</div>
+		</main>
+	</body>
+</html>

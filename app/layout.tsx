@@ -14,8 +14,8 @@ export const metadata: Metadata = {
 	description: 'AuthShield - A simple authentication example',
 	icons: [
 		{
-			url: '/logo.svg',
-			href: '/logo.svg',
+			url: '/logo.png',
+			href: '/logo.png',
 		},
 	],
 };
