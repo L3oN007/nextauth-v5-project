@@ -46,7 +46,7 @@ export const TwoFAEmailTemplate: React.FC<
 						<div className='mt-5'>
 							<Text className='text-xs text-gray-500 dark:text-gray-400'>
 								This code will expire in{' '}
-								<span className='font-bold'>10 minutes</span> . If you
+								<span className='font-bold'>5 minutes</span> . If you
 								did not make this request, please disregard this
 								email.
 							</Text>

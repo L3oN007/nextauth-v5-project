@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/providers/next-theme-provider';
+import { auth } from '@/auth';
+import { SessionProvider } from 'next-auth/react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,22 +22,25 @@ export const metadata: Metadata = {
 	],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
+	const session = await auth();
 	return (
-		<html lang='en'>
-			<body className={inter.className}>
-				<ThemeProvider
-					attribute='class'
-					defaultTheme='light'
-					enableSystem>
-					<Toaster richColors position='bottom-right' />
-					{children}
-				</ThemeProvider>
-			</body>
-		</html>
+		<SessionProvider session={session}>
+			<html lang='en'>
+				<body className={inter.className}>
+					<ThemeProvider
+						attribute='class'
+						defaultTheme='light'
+						enableSystem>
+						<Toaster richColors position='bottom-right' />
+						{children}
+					</ThemeProvider>
+				</body>
+			</html>
+		</SessionProvider>
 	);
 }
