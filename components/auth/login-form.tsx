@@ -28,6 +28,7 @@ export const LoginForm = () => {
 		searchParams.get('error') === 'OAuthAccountNotLinked'
 			? 'Email already in use with different account!'
 			: '';
+	const [showTwoFactor, setShowTwoFactor] = useState(false);
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string | undefined>('');
@@ -36,6 +37,7 @@ export const LoginForm = () => {
 		defaultValues: {
 			email: '',
 			password: '',
+			code: '',
 		},
 	});
 
@@ -44,10 +46,25 @@ export const LoginForm = () => {
 		setSuccess('');
 
 		startTransition(() => {
-			login(values).then((data) => {
-				setError(data?.error);
-				setSuccess(data?.success);
-			});
+			login(values)
+				.then((data) => {
+					if (data?.error) {
+						form.reset();
+						setError(data.error);
+					}
+
+					if (data?.success) {
+						form.reset();
+						setSuccess(data.success);
+					}
+
+					if (data?.twoFactor) {
+						setShowTwoFactor(true);
+					}
+				})
+				.catch(() => {
+					setError('Something went wrong!');
+				});
 		});
 	};
 
@@ -62,53 +79,76 @@ export const LoginForm = () => {
 					onSubmit={form.handleSubmit(onSubmit)}
 					className='space-y-6'>
 					<div className='space-y-4'>
-						<FormField
-							control={form.control}
-							name='email'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email</FormLabel>
-									<FormControl>
-										<Input
-											{...field}
-											type='text'
-											placeholder='abc@gmail.com'
-											disabled={isPending}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='password'
-							render={({ field }) => (
-								<FormItem>
-									<div className='flex justify-between items-center '>
-										<FormLabel>Password</FormLabel>
-										<Button
-											variant='link'
-											size='sm'
-											className='px-0 font-normal hover:no-underline hover:text-primary/80 text-[12px]'
-											asChild>
-											<Link href='/auth/reset-password'>
-												Forgot password?
-											</Link>
-										</Button>
-									</div>
-									<FormControl>
-										<Input
-											{...field}
-											type='password'
-											placeholder='******'
-											disabled={isPending}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						{!showTwoFactor ? (
+							<>
+								<FormField
+									control={form.control}
+									name='email'
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Email</FormLabel>
+											<FormControl>
+												<Input
+													{...field}
+													type='text'
+													placeholder='abc@gmail.com'
+													disabled={isPending}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name='password'
+									render={({ field }) => (
+										<FormItem>
+											<div className='flex justify-between items-center '>
+												<FormLabel>Password</FormLabel>
+												<Button
+													variant='link2'
+													size='sm'
+													className='px-0 font-normal text-[12px]'
+													asChild>
+													<Link href='/auth/reset-password'>
+														Forgot password?
+													</Link>
+												</Button>
+											</div>
+											<FormControl>
+												<Input
+													{...field}
+													type='password'
+													placeholder='******'
+													disabled={isPending}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</>
+						) : (
+							<FormField
+								control={form.control}
+								name='code'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>2FA Code</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												type='text'
+												placeholder='123456'
+												disabled={isPending}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 					</div>
 					<FormError message={error || urlError} />
 					<FormSuccess message={success} />
@@ -131,10 +171,10 @@ export const LoginForm = () => {
 									strokeLinejoin='round'>
 									<path d='M21 12a9 9 0 1 1-6.219-8.56' />
 								</svg>
-								Login
+								{showTwoFactor ? 'Confirm 2FA' : 'Login'}
 							</>
 						) : (
-							'Login'
+							`${showTwoFactor ? 'Confirm 2FA' : 'Login'}`
 						)}
 					</Button>
 				</form>
