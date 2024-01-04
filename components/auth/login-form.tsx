@@ -1,4 +1,14 @@
 'use client';
+
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { useState, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
+
+import { LoginSchema } from '@/schemas';
+import { Input } from '@/components/ui/input';
 import {
 	Form,
 	FormControl,
@@ -7,37 +17,30 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
-import { LoginSchema } from '@/schemas';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { useSearchParams } from 'next/navigation';
-import * as z from 'zod';
-
+import { CardWrapper } from '@/components/auth/card-wrapper';
+import { Button } from '@/components/ui/button';
+import { FormError } from '@/components/form-error';
+import { FormSuccess } from '@/components/form-success';
 import { login } from '@/actions/login';
-import { useState, useTransition } from 'react';
-import { FormError } from '../form-error';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { CardWrapper } from './card-wrapper';
-import { FormSuccess } from '../form-success';
-import Link from 'next/link';
 
 export const LoginForm = () => {
 	const searchParams = useSearchParams();
+	const callbackUrl = searchParams.get('callbackUrl');
 	const urlError =
 		searchParams.get('error') === 'OAuthAccountNotLinked'
-			? 'Email already in use with different account!'
+			? 'Email already in use with different provider!'
 			: '';
+
 	const [showTwoFactor, setShowTwoFactor] = useState(false);
-	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string | undefined>('');
+	const [isPending, startTransition] = useTransition();
+
 	const form = useForm<z.infer<typeof LoginSchema>>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
 			email: '',
 			password: '',
-			code: '',
 		},
 	});
 
@@ -46,7 +49,7 @@ export const LoginForm = () => {
 		setSuccess('');
 
 		startTransition(() => {
-			login(values)
+			login(values, callbackUrl)
 				.then((data) => {
 					if (data?.error) {
 						form.reset();
@@ -62,16 +65,14 @@ export const LoginForm = () => {
 						setShowTwoFactor(true);
 					}
 				})
-				.catch(() => {
-					setError('Something went wrong!');
-				});
+				.catch(() => setError('Something went wrong'));
 		});
 	};
 
 	return (
 		<CardWrapper
 			headerLabel='Welcome back'
-			backButtonLabel='Don&#39;t have an account?'
+			backButtonLabel="Don't have an account?"
 			backButtonHref='/auth/register'
 			showSocial>
 			<Form {...form}>
